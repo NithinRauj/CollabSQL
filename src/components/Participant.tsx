@@ -15,10 +15,10 @@ const Participant = ({ name }: ParticipantProps) => {
             direction={'row'}
             justify={'space-around'}
             align={'center'}
-            bg={'gray.700'}
-            color={'whiteAlpha.800'}
+            bg={'blue.500'}
+            color={'white'}
         >
-            <Icon as={FaUser}></Icon>
+            <Icon as={FaUser} color={'white'}></Icon>
             {name}
         </Flex>
     )
