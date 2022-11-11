@@ -12,7 +12,7 @@ const QueryEditor = () => {
             h={'3xs'}
             borderRadius={'md'}
         >
-            <Textarea h={'3xs'} resize={'none'} focusBorderColor={'transparent'} border={'none'}>Enter you queries here </Textarea>
+            <Textarea h={'3xs'} resize={'none'} focusBorderColor={'transparent'} border={'none'} placeholder={'Enter your queries here '} />
         </Container>
     )
 }

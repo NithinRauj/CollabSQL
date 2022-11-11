@@ -13,9 +13,23 @@ import {
     Icon,
 } from '@chakra-ui/react'
 import { FaPlay } from 'react-icons/fa'
+import ApiConfig from '../data/api-config.json';
+import axios from 'axios';
 
 function AppBar() {
     const { isOpen, onOpen, onClose } = useDisclosure()
+
+    const executeQuery = async () => {
+        try {
+            const postData = {
+                query: 'SELECT * FROM employee'
+            }
+            const res = await axios.post(`${ApiConfig.BASE_URL}${ApiConfig.EXECUTE_QUERY}`, postData);
+            console.log(res.data);
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
     return (
         <>
@@ -30,6 +44,7 @@ function AppBar() {
                 <Button
                     colorScheme={'blue'}
                     leftIcon={<Icon as={FaPlay} />}
+                    onClick={executeQuery}
                 >
                     Execute
                 </Button>
