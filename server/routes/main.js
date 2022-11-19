@@ -13,7 +13,7 @@ router.post('/execsql', (req, res) => {
         initDBConnection();
         db.query(data['query'], (err, result, fields) => {
             if (err) {
-                return res.status(400).json({ err: true, msg: err });
+                return res.status(200).json({ err: true, msg: 'Query Execution failed', desc: err });
             } else {
                 return res.status(200).json({ err: false, msg: 'Query executed', result });
             }
@@ -21,7 +21,7 @@ router.post('/execsql', (req, res) => {
 
     } catch (err) {
         console.log('DB Error', err);
-        return res.status(400).json({ err: true, msg: err });
+        return res.status(500).json({ err: true, msg: 'Server Error', desc: err });
     }
 });
 
