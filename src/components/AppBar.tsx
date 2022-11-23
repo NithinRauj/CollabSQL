@@ -96,7 +96,6 @@ function AppBar() {
                 <Heading> CollabSQL</Heading>
                 <Button
                     colorScheme={'blue'}
-                    onClick={onOpen}
                 >
                     Start Session
                 </Button>
