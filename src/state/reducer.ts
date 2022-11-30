@@ -3,18 +3,23 @@ import { QueryResult } from "../data/types";
 
 export type AppState = {
     query: string
-    result: QueryResult
+    result: QueryResult,
+    sessionId: string
 };
 
 const initialState: AppState = {
-    query: "",
-    result: {} as QueryResult
+    query: '',
+    result: {} as QueryResult,
+    sessionId: ''
 }
 
 const appSlice = createSlice({
     name: 'app',
     initialState: initialState,
     reducers: {
+        setSessionId: (state, action) => {
+            state.sessionId = action.payload;
+        },
         storeQuery: (state, action) => {
             state.query = action.payload;
         },
@@ -24,6 +29,6 @@ const appSlice = createSlice({
     }
 });
 
-export const { storeQuery, storeResult } = appSlice.actions;
+export const { setSessionId, storeQuery, storeResult } = appSlice.actions;
 const appReducer = appSlice.reducer;
 export default appReducer;

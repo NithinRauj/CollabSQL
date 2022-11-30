@@ -12,6 +12,7 @@ import {
     useDisclosure,
     Icon,
     useToast,
+    Text,
 } from '@chakra-ui/react'
 import { FaPlay } from 'react-icons/fa'
 import ApiConfig from '../data/api-config.json';
@@ -23,12 +24,12 @@ import { QueryResult, ServerResError, ServerResSuccess, ServerResSuccessWithRows
 
 function AppBar() {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const query = useSelector((state: RootState) => state.app.query);
+    const state = useSelector((state: RootState) => state.app);
     const toast = useToast();
     const dispatch = useDispatch();
 
     const executeQuery = async () => {
-        if (!query) {
+        if (!state) {
             toast({
                 title: `Enter a valid query`,
                 status: 'warning',
@@ -38,8 +39,8 @@ function AppBar() {
             return;
         }
         try {
-            const postData = { query };
-            const res = await axios.post(`${ApiConfig.BASE_URL}${ApiConfig.EXECUTE_QUERY}`, postData);
+            const postData = { query: state.query };
+            const res = await axios.post(`${ApiConfig.BASE_SERVER_URL}${ApiConfig.EXECUTE_QUERY}`, postData);
             formatAndStoreResult(res.data);
         } catch (err) {
             console.log(err)
@@ -90,14 +91,24 @@ function AppBar() {
         }
     }
 
+    const shareSession = () => {
+        onOpen();
+    }
+
+    const copyLink = () => {
+        navigator.clipboard.writeText(`${ApiConfig.APP_URL}?session=${state.sessionId}`);
+        onClose();
+    }
+
     return (
         <>
-            <Flex justifyContent={'space-around'} width={'md'}>
+            <Flex justifyContent={'space-around'} width={'5xl'}>
                 <Heading> CollabSQL</Heading>
                 <Button
                     colorScheme={'blue'}
+                    onClick={shareSession}
                 >
-                    Start Session
+                    Collaborate
                 </Button>
                 <Button
                     colorScheme={'blue'}
@@ -106,6 +117,7 @@ function AppBar() {
                 >
                     Execute
                 </Button>
+                <Text>Session: {state.sessionId}</Text>
             </Flex>
             <Modal isOpen={isOpen} onClose={onClose} isCentered>
                 <ModalOverlay />
@@ -113,14 +125,16 @@ function AppBar() {
                     <ModalHeader>Live Collaboration</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        Invite users to collaborate
+                        <Text as='b'>
+                            Share this link with anyone you want to collaborate:
+                        </Text>
+                        <Text>
+                            {ApiConfig.APP_URL}?session={state.sessionId}
+                        </Text>
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button colorScheme='blue' mr={3} onClick={onClose}>
-                            Close
-                        </Button>
-                        <Button variant='ghost'>Copy</Button>
+                        <Button variant='ghost' onClick={copyLink}>Copy</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

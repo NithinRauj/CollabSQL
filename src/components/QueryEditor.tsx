@@ -1,53 +1,65 @@
-import { Container, Textarea } from '@chakra-ui/react'
-import React, { useEffect, useRef, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import { Button, Container } from '@chakra-ui/react'
+import { useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { storeQuery } from '../state/reducer';
 import * as monaco from 'monaco-editor';
 import * as Y from 'yjs';
 import { MonacoBinding } from 'y-monaco';
 import { WebsocketProvider } from 'y-websocket';
+import { RootState } from '../state/store';
 
 const QueryEditor = () => {
-    const [query, setQuery] = useState<string>("");
+    const state = useSelector((state: RootState) => state.app);
     const dispatch = useDispatch();
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
+    const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
+    const socketProvider = useRef<WebsocketProvider>();
 
     useEffect(() => {
         initEditor();
         return () => {
             deleteEditor();
         }
-    }, [])
+    }, [state.sessionId])
 
     const initEditor = () => {
-        const yDoc = new Y.Doc();
-        const docType = yDoc.getText('sql-content');
-        editorRef.current = monaco.editor.create(document.getElementById('sql-editor')!, {
-            value: '/* Enter sql queries here */',
-            language: 'sql',
+        if (state.sessionId) {
+            const yDoc = new Y.Doc();
+            const docType = yDoc.getText('sql-content-' + state.sessionId);
+            editor.current = monaco.editor.create(document.getElementById('sql-editor')!, {
+                value: '/* Enter sql queries here */',
+                language: 'sql',
+                theme: 'vs-dark'
+            });
+            console.log('connecting to session ' + state.sessionId);
+            socketProvider.current = new WebsocketProvider('ws://localhost:3000', state.sessionId, yDoc);
+            socketProvider.current.on('status', (event: any) => {
+                console.log(event.status);
+            });
+            new MonacoBinding(docType, editor.current.getModel()!, new Set([editor.current]), socketProvider.current.awareness);
 
-        });
-
-        const socketProvider = new WebsocketProvider('ws://localhost:1712', 'room1', yDoc);
-        socketProvider.on('status', (event: any) => {
-            console.log(event.status);
-        });
-
-        const binding = new MonacoBinding(docType, editorRef.current.getModel()!, new Set([editorRef.current]));
-    }
-
-    const deleteEditor = () => {
-        if (editorRef.current) {
-            editorRef.current.dispose();
+            const editorModel = editor.current.getModel()
+            editorModel?.onDidChangeContent((e: monaco.editor.IModelContentChangedEvent) => {
+                const editorContent = editorModel?.getValue() || "";
+                dispatch(storeQuery(editorContent));
+            });
         }
     }
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setQuery(e.target.value);
+    const deleteEditor = () => {
+        if (editor.current) {
+            editor.current.dispose();
+        }
+        if (socketProvider.current) {
+            disconnectProvider();
+        }
     }
 
-    const handleBlur = () => {
-        dispatch(storeQuery(query.trim()));
+    const connectProvider = () => {
+        socketProvider.current?.connect();
+    }
+
+    const disconnectProvider = () => {
+        socketProvider.current?.disconnect();
     }
 
     return (
@@ -61,16 +73,8 @@ const QueryEditor = () => {
             border={'2px solid gray'}
             overflowY={'hidden'}
         >
-            {/* <Textarea
-                h={'3xs'}
-                resize={'none'}
-                focusBorderColor={'transparent'}
-                border={'none'}
-                placeholder={'Enter your queries here '}
-                value={query}
-                onChange={handleChange}
-                onBlur={handleBlur}
-            /> */}
+            <Button onClick={connectProvider}>Connect</Button>
+            <Button onClick={disconnectProvider}>Disconnect</Button>
             <div id='sql-editor' style={{ width: '100%', height: '100%' }}></div>
         </Container>
     )
