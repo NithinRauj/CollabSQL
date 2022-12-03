@@ -1,25 +1,20 @@
-import { Flex, Icon } from '@chakra-ui/react'
-import { FaUser } from 'react-icons/fa';
+import { Avatar, Flex, Text } from '@chakra-ui/react'
 
 type ParticipantProps = {
+    id: string
     name: string
 }
 
-const Participant = ({ name }: ParticipantProps) => {
+const Participant = ({ id, name }: ParticipantProps) => {
     return (
         <Flex
-            w={'100%'}
-            h={'50px'}
-            m={'10px 0px'}
-            borderRadius={'4px'}
-            direction={'row'}
-            justify={'space-around'}
-            align={'center'}
-            bg={'blue.500'}
-            color={'white'}
+            justifyContent={'center'}
+            alignItems={'center'}
+            direction={'column'}
+            margin={'10px 0px'}
         >
-            <Icon as={FaUser} color={'white'}></Icon>
-            {name}
+            <Avatar name={name} />
+            <Text>{name}</Text>
         </Flex>
     )
 }

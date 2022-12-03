@@ -1,9 +1,10 @@
 import { Button, Container } from '@chakra-ui/react'
 import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { storeQuery } from '../state/reducer';
+import { setParticipants, storeQuery } from '../state/reducer';
 import * as monaco from 'monaco-editor';
 import * as Y from 'yjs';
+import API from '../data/api-config.json';
 import { MonacoBinding } from 'y-monaco';
 import { WebsocketProvider } from 'y-websocket';
 import { RootState } from '../state/store';
@@ -19,7 +20,7 @@ const QueryEditor = () => {
         return () => {
             deleteEditor();
         }
-    }, [state.sessionId])
+    }, [state.sessionId]);
 
     const initEditor = () => {
         if (state.sessionId) {
@@ -31,16 +32,38 @@ const QueryEditor = () => {
                 theme: 'vs-dark'
             });
             console.log('connecting to session ' + state.sessionId);
-            socketProvider.current = new WebsocketProvider('ws://localhost:3000', state.sessionId, yDoc);
+            socketProvider.current = new WebsocketProvider(API.AWARENESS_SOCKET_URL, state.sessionId, yDoc);
             socketProvider.current.on('status', (event: any) => {
                 console.log(event.status);
             });
+            addSocketEvents();
             new MonacoBinding(docType, editor.current.getModel()!, new Set([editor.current]), socketProvider.current.awareness);
 
             const editorModel = editor.current.getModel()
             editorModel?.onDidChangeContent((e: monaco.editor.IModelContentChangedEvent) => {
                 const editorContent = editorModel?.getValue() || "";
                 dispatch(storeQuery(editorContent));
+            });
+        }
+    }
+
+    const addSocketEvents = () => {
+        if (socketProvider.current) {
+            socketProvider.current.awareness.setLocalStateField('name', state.userName);
+            socketProvider.current.awareness.setLocalStateField('sessionId', state.sessionId);
+            socketProvider.current.awareness.on('change', () => {
+                const participants = socketProvider.current?.awareness.getStates()!;
+                console.log(participants);
+                if (participants.size) {
+                    const participantsData = [];
+                    for (const [key, value] of participants) {
+                        if (value.sessionId === state.sessionId) {
+                            participantsData.push({ id: key, name: value.name });
+                        }
+                    }
+                    console.log(participantsData);
+                    dispatch(setParticipants(participantsData));
+                }
             });
         }
     }
@@ -70,7 +93,6 @@ const QueryEditor = () => {
             p={'10px 0px'}
             h={'3xs'}
             borderRadius={'md'}
-            border={'2px solid gray'}
             overflowY={'hidden'}
         >
             <Button onClick={connectProvider}>Connect</Button>

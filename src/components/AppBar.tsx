@@ -1,18 +1,11 @@
 import {
-    Button,
-    Flex,
-    Heading,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    useDisclosure,
-    Icon,
-    useToast,
-    Text,
+    Button, Flex,
+    Heading, Modal,
+    ModalOverlay, ModalContent,
+    ModalHeader, ModalFooter,
+    ModalBody, ModalCloseButton,
+    useDisclosure, Icon,
+    useToast, Text, Badge,
 } from '@chakra-ui/react'
 import { FaPlay } from 'react-icons/fa'
 import ApiConfig from '../data/api-config.json';
@@ -39,7 +32,7 @@ function AppBar() {
             return;
         }
         try {
-            const postData = { query: state.query };
+            const postData = { id: state.sessionId, query: state.query };
             const res = await axios.post(`${ApiConfig.BASE_SERVER_URL}${ApiConfig.EXECUTE_QUERY}`, postData);
             formatAndStoreResult(res.data);
         } catch (err) {
@@ -102,8 +95,16 @@ function AppBar() {
 
     return (
         <>
-            <Flex justifyContent={'space-around'} width={'5xl'}>
+            <Flex justifyContent={'space-between'} alignItems={'center'} width={'5xl'}>
                 <Heading> CollabSQL</Heading>
+                <Badge fontSize={'sm'} >Session: {state.sessionId}</Badge>
+                <Badge
+                    fontSize={'xl'}
+                    variant={'solid'}
+                    colorScheme={'whatsapp'}
+                >
+                    {state.isHost ? 'Host' : 'Guest'}
+                </Badge>
                 <Button
                     colorScheme={'blue'}
                     onClick={shareSession}
@@ -115,9 +116,8 @@ function AppBar() {
                     leftIcon={<Icon as={FaPlay} />}
                     onClick={executeQuery}
                 >
-                    Execute
+                    Run
                 </Button>
-                <Text>Session: {state.sessionId}</Text>
             </Flex>
             <Modal isOpen={isOpen} onClose={onClose} isCentered>
                 <ModalOverlay />

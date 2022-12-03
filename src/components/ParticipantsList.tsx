@@ -1,8 +1,11 @@
-import { Box, Container, Flex, Heading } from '@chakra-ui/react'
-import React from 'react'
+import { Flex, Heading } from '@chakra-ui/react'
+import { useSelector } from 'react-redux'
+import { RootState } from '../state/store'
 import Participant from './Participant'
 
-const Participants = () => {
+const ParticipantsList = () => {
+
+    const state = useSelector((state: RootState) => state.app);
     return (
         <>
             <Flex direction={'column'}>
@@ -17,9 +20,11 @@ const Participants = () => {
                     direction={'column'}
                     overflowY={'auto'}
                 >
-                    <Participant name='User 1' />
-                    <Participant name='User 2' />
-                    <Participant name='User 3' />
+                    {
+                        state.participants.length ?
+                            state.participants.map((p) => <Participant key={p!.id} id={p!.id} name={p!.name} />)
+                            : null
+                    }
                 </Flex>
             </Flex>
         </>
@@ -27,4 +32,4 @@ const Participants = () => {
     )
 }
 
-export default Participants
+export default ParticipantsList

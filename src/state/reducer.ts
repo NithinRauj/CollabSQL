@@ -4,31 +4,50 @@ import { QueryResult } from "../data/types";
 export type AppState = {
     query: string
     result: QueryResult,
-    sessionId: string
+    sessionId: string,
+    userName: string,
+    isHost: boolean,
+    participants: [{ id: string, name: string }] | []
 };
 
 const initialState: AppState = {
     query: '',
     result: {} as QueryResult,
-    sessionId: ''
+    sessionId: '',
+    userName: '',
+    isHost: false,
+    participants: []
 }
 
 const appSlice = createSlice({
     name: 'app',
     initialState: initialState,
     reducers: {
+        setUserData: (state, action) => {
+            state.isHost = action.payload.isHost;
+            state.sessionId = action.payload.id;
+            state.userName = action.payload.userName;
+        },
+        setHostStatus: (state, action) => {
+            state.isHost = action.payload;
+        },
         setSessionId: (state, action) => {
             state.sessionId = action.payload;
+        },
+        setParticipants: (state, action) => {
+            state.participants = action.payload;
         },
         storeQuery: (state, action) => {
             state.query = action.payload;
         },
         storeResult: (state, action) => {
             state.result = action.payload;
-        }
+        },
     }
 });
 
-export const { setSessionId, storeQuery, storeResult } = appSlice.actions;
+export const { setSessionId, storeQuery,
+    storeResult, setHostStatus,
+    setUserData, setParticipants } = appSlice.actions;
 const appReducer = appSlice.reducer;
 export default appReducer;
