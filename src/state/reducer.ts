@@ -8,6 +8,7 @@ export type AppState = {
     userName: string,
     isHost: boolean,
     participants: [{ id: string, name: string }] | []
+    notify: boolean,
 };
 
 const initialState: AppState = {
@@ -16,7 +17,8 @@ const initialState: AppState = {
     sessionId: '',
     userName: '',
     isHost: false,
-    participants: []
+    participants: [],
+    notify: false
 }
 
 const appSlice = createSlice({
@@ -43,11 +45,14 @@ const appSlice = createSlice({
         storeResult: (state, action) => {
             state.result = action.payload;
         },
+        setNotify: (state, action) => {
+            state.notify = action.payload;
+        }
     }
 });
 
 export const { setSessionId, storeQuery,
     storeResult, setHostStatus,
-    setUserData, setParticipants } = appSlice.actions;
+    setUserData, setParticipants, setNotify } = appSlice.actions;
 const appReducer = appSlice.reducer;
 export default appReducer;

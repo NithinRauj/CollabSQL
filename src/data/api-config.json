@@ -1,7 +1,8 @@
 {
     "APP_URL": "http://localhost:5173/",
-    "AWARENESS_SOCKET_URL": "ws://localhost:3000",
+    "SOCKET_URL": "ws://localhost:3000",
     "BASE_SERVER_URL": "http://localhost:7000/",
     "EXECUTE_QUERY": "execsql/",
-    "CREATE_SESSION": "createSession/"
+    "CREATE_SESSION": "createSession/",
+    "GET_RESULT": "getResult/"
 }

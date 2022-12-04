@@ -1,4 +1,4 @@
-import { Avatar, Flex, Text } from '@chakra-ui/react'
+import { Avatar, Box, Flex, Text, VStack } from '@chakra-ui/react'
 
 type ParticipantProps = {
     id: string
@@ -7,15 +7,18 @@ type ParticipantProps = {
 
 const Participant = ({ id, name }: ParticipantProps) => {
     return (
-        <Flex
-            justifyContent={'center'}
-            alignItems={'center'}
-            direction={'column'}
-            margin={'10px 0px'}
+        <Box
+            bg={'gray.800'}
+            w={'100%'}
+            p={5}
+            borderBottom={'2px solid white'}
         >
-            <Avatar name={name} />
-            <Text>{name}</Text>
-        </Flex>
+            <VStack
+            >
+                <Avatar name={name} />
+                <Text color={'whiteAlpha.900'}>{name}</Text>
+            </VStack>
+        </Box>
     )
 }
 

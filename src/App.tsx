@@ -2,14 +2,12 @@ import {
   Box, Flex, Modal,
   ModalOverlay, ModalContent,
   ModalHeader, ModalFooter,
-  ModalBody, ModalCloseButton,
-  useDisclosure,
-  Button,
-  Heading,
+  ModalBody, useDisclosure,
+  Button, Heading,
   Input
 } from '@chakra-ui/react'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import './App.css'
 import AppBar from './components/AppBar'
@@ -25,6 +23,7 @@ function App() {
   const [name, setName] = useState<string>('');
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const fieldRef = useRef(null);
 
   useEffect(() => {
     onOpen();
@@ -63,22 +62,27 @@ function App() {
 
 
   return (
-    <Box className="App" p={1}>
+    <Box className="App">
       <AppBar />
-      <Flex justify={'space-between'}>
-        <Box w={'80%'}>
+      <Flex>
+        <Box w={'100%'}>
           <ResultArea />
           <QueryEditor />
         </Box>
         <ParticipantsList />
-        <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <Modal
+          closeOnOverlayClick={false}
+          isOpen={isOpen}
+          initialFocusRef={fieldRef}
+          onClose={onClose}
+          isCentered
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>CollabSQL</ModalHeader>
-            <ModalCloseButton />
             <ModalBody>
               <Heading size={'md'}>What's your Name?</Heading>
-              <Input onChange={handleNameChange} value={name} />
+              <Input onChange={handleNameChange} value={name} ref={fieldRef} />
             </ModalBody>
 
             <ModalFooter>

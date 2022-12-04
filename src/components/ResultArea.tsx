@@ -11,12 +11,13 @@ const ResultArea = () => {
 
     return (
         <Container
-            w={'90%'}
-            maxW={'90%'}
+            w={'100%'}
+            maxW={'100%'}
             m={5}
-            h={'sm'}
+            h={'lg'}
             border={'2px solid gray'}
             borderRadius={'md'}
+            overflow={'auto'}
         >
             {result.rows && result.rows.length ?
                 <TableContainer>
