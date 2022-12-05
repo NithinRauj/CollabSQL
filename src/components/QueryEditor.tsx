@@ -44,16 +44,33 @@ const QueryEditor = () => {
             });
             console.log('connecting to session ' + state.sessionId);
             socketProvider.current = new WebsocketProvider(API.SOCKET_URL, state.sessionId, yDoc);
-
             addSocketEvents();
             new MonacoBinding(docType, editor.current.getModel()!, new Set([editor.current]), socketProvider.current.awareness);
+            editorEvents();
 
-            const editorModel = editor.current.getModel()
-            editorModel?.onDidChangeContent((e: monaco.editor.IModelContentChangedEvent) => {
-                const editorContent = editorModel?.getValue() || "";
-                dispatch(storeQuery(editorContent));
-            });
         }
+    }
+
+    const editorEvents = () => {
+        const editorModel = editor.current!.getModel();
+        if (state.isHost) {
+            editorModel?.setValue('/* Enter SQL queries here */');
+        }
+        editorModel?.onDidChangeContent((e: monaco.editor.IModelContentChangedEvent) => {
+            const editorContent = editorModel?.getValue() || "";
+            dispatch(storeQuery(editorContent));
+        });
+
+        editor.current!.onKeyDown((e) => {
+            socketProvider.current!.awareness.setLocalStateField('typing', true);
+        });
+
+        editor.current!.onKeyUp((e) => {
+            setTimeout(() => {
+                socketProvider.current!.awareness.setLocalStateField('typing', false);
+            }, 1000)
+        });
+
     }
 
     const addSocketEvents = () => {
@@ -61,20 +78,20 @@ const QueryEditor = () => {
             socketProvider.current.awareness.setLocalStateField('name', state.userName);
             socketProvider.current.awareness.setLocalStateField('sessionId', state.sessionId);
 
-            socketProvider.current.awareness.on('change', () => {
+            socketProvider.current.awareness.on('change', ({ updated }: any) => {
                 const participants = socketProvider.current?.awareness.getStates()!;
                 if (participants.size) {
                     const participantsData = [];
                     for (const [key, value] of participants) {
                         if (value.sessionId === state.sessionId) {
-                            participantsData.push({ id: key, name: value.name });
+                            participantsData.push({ id: key, name: value.name, typing: value.typing });
                         }
                     }
                     dispatch(setParticipants(participantsData));
                 }
             });
 
-            socketProvider.current.awareness.on('update', ({ updated }: any) => {
+            socketProvider.current.awareness.on('update', () => {
                 const participants = socketProvider.current?.awareness.getStates()!;
                 const clientId = socketProvider.current?.awareness.clientID;
                 for (const [key, value] of participants) {

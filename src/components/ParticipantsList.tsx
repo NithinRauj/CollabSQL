@@ -24,7 +24,7 @@ const ParticipantsList = () => {
                 <VStack spacing={0}>
                     {
                         state.participants.length ?
-                            state.participants.map((p) => <Participant key={p!.id} id={p!.id} name={p!.name} />)
+                            state.participants.map((p) => <Participant key={p!.id} id={p!.id} name={p!.name} typing={p!.typing} />)
                             : null
                     }
                 </VStack>

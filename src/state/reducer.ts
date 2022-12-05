@@ -7,7 +7,7 @@ export type AppState = {
     sessionId: string,
     userName: string,
     isHost: boolean,
-    participants: [{ id: string, name: string }] | []
+    participants: [{ id: string, name: string, typing: false }] | []
     notify: boolean,
 };
 
